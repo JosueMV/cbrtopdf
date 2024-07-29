@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkinter import ttk
 import os
-import rarfile
+import patoolib
 from zipfile import ZipFile
 from PIL import Image
 import io
+import tempfile
 
 # Función para seleccionar la ruta de exportación del PDF
 def seleccionar_ruta_exportacion():
@@ -43,15 +44,18 @@ def convertir_a_pdf():
             # Leer archivo CBR
             if archivo_seleccionado.lower().endswith('.cbr'):
                 try:
-                    with rarfile.RarFile(archivo_seleccionado) as rf:
-                        for entry in sorted(rf.infolist(), key=lambda x: x.filename):
-                            if entry.filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.tiff')):
-                                with rf.open(entry) as file:
-                                    image = Image.open(io.BytesIO(file.read()))
-                                    if image.mode != 'RGB':
-                                        image = image.convert('RGB')
-                                    images.append(image)
-                except rarfile.RarCannotExec as e:
+                    # Extraer el archivo CBR a un directorio temporal
+                    with tempfile.TemporaryDirectory() as tempdir:
+                        patoolib.extract_archive(archivo_seleccionado, outdir=tempdir)
+                        for root, dirs, files in os.walk(tempdir):
+                            for file in files:
+                                if file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.tiff')):
+                                    image_path = os.path.join(root, file)
+                                    with Image.open(image_path) as image:
+                                        if image.mode != 'RGB':
+                                            image = image.convert('RGB')
+                                        images.append(image)
+                except patoolib.PatoolError as e:
                     print(f"Error al procesar archivo CBR: {e}")
                     messagebox.showerror("Error", f"Error al procesar archivo CBR: {e}")
                     return
