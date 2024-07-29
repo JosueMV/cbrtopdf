@@ -55,7 +55,7 @@ def convertir_a_pdf():
                                         if image.mode != 'RGB':
                                             image = image.convert('RGB')
                                         images.append(image)
-                except patoolib.PatoolError as e:
+                except Exception as e:
                     print(f"Error al procesar archivo CBR: {e}")
                     messagebox.showerror("Error", f"Error al procesar archivo CBR: {e}")
                     return
