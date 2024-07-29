@@ -3,7 +3,7 @@ from tkinter import filedialog, messagebox
 from tkinter import ttk
 import os
 import rarfile
-from zipfile import ZipFile  # Importar ZipFile para manejar archivos CBZ
+from zipfile import ZipFile
 from PIL import Image
 import io
 
@@ -51,9 +51,9 @@ def convertir_a_pdf():
                                     if image.mode != 'RGB':
                                         image = image.convert('RGB')
                                     images.append(image)
-                except rarfile.Error as e:
-                    print(f"Error al procesar el archivo CBR: {e}")
-                    messagebox.showerror("Error", f"Error al procesar el archivo CBR: {e}")
+                except rarfile.RarCannotExec as e:
+                    print(f"Error al procesar archivo CBR: {e}")
+                    messagebox.showerror("Error", f"Error al procesar archivo CBR: {e}")
                     return
             # Leer archivo CBZ
             elif archivo_seleccionado.lower().endswith('.cbz'):
@@ -126,3 +126,4 @@ ruta_exportacion = None
 
 # Ejecutar el bucle principal de la ventana
 root.mainloop()
+
