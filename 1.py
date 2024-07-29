@@ -42,14 +42,19 @@ def convertir_a_pdf():
             images = []
             # Leer archivo CBR
             if archivo_seleccionado.lower().endswith('.cbr'):
-                with rarfile.RarFile(archivo_seleccionado) as rf:
-                    for entry in sorted(rf.infolist(), key=lambda x: x.filename):
-                        if entry.filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.tiff')):
-                            with rf.open(entry) as file:
-                                image = Image.open(io.BytesIO(file.read()))
-                                if image.mode != 'RGB':
-                                    image = image.convert('RGB')
-                                images.append(image)
+                try:
+                    with rarfile.RarFile(archivo_seleccionado) as rf:
+                        for entry in sorted(rf.infolist(), key=lambda x: x.filename):
+                            if entry.filename.endswith(('.jpg', '.jpeg', '.png', '.gif', '.tiff')):
+                                with rf.open(entry) as file:
+                                    image = Image.open(io.BytesIO(file.read()))
+                                    if image.mode != 'RGB':
+                                        image = image.convert('RGB')
+                                    images.append(image)
+                except rarfile.Error as e:
+                    print(f"Error al procesar el archivo CBR: {e}")
+                    messagebox.showerror("Error", f"Error al procesar el archivo CBR: {e}")
+                    return
             # Leer archivo CBZ
             elif archivo_seleccionado.lower().endswith('.cbz'):
                 with ZipFile(archivo_seleccionado) as zf:
@@ -120,8 +125,4 @@ archivo_seleccionado = None
 ruta_exportacion = None
 
 # Ejecutar el bucle principal de la ventana
-root.mainloop() 
-
-
-
-
+root.mainloop()
